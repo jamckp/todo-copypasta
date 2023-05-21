@@ -1,20 +1,52 @@
-import React from "react";
 import Form from "./components/Form";
 import FilterButton from "./components/FilterButton";
+import { nanoid } from "nanoid";
+import React, { useState } from "react";
 import Todo from "./components/Todo";
 
 function App(props) {
-  const taskList = props.tasks.map((task) => (
+
+  const [tasks, setTasks] = useState(props.tasks);
+
+  const taskList = tasks.map((task) => (
     <Todo
       id={task.id}
       name={task.name}
       completed={task.completed}
       key={task.id}
+      toggleTaskCompleted={toggleTaskCompleted}
+      deleteTask={deleteTask}
     />
   ));
 
+  const taskNoun = taskList.length !== 1 ? 'tasks': 'task';
+  const headingText = `${taskList.length} ${taskNoun} remaining`;
+
   function addTask(name) {
-    alert(name);
+    const newTask = { id: nanoid(), name, completed: false };
+    setTasks([...tasks, newTask]);
+  }
+
+  function deleteTask(id) {
+    console.log(id);
+  }
+
+  function deleteTask(id) {
+    const remainingTasks = tasks.filter((task) => id !== task.id);
+    setTasks(remainingTasks);
+  }
+
+  function toggleTaskCompleted(id) {
+    const updatedTasks = tasks.map((task) => {
+      // if this task has the same ID as the edited task
+      if (id === task.id) {
+        // use object spread to make a new object
+        // whose `completed` prop has been inverted
+        return { ...task, completed: !task.completed };
+      }
+      return task;
+    });
+    setTasks(updatedTasks);
   }
 
   return (
@@ -26,7 +58,7 @@ function App(props) {
         <FilterButton />
         <FilterButton />
       </div>
-      <h2 id="list-heading">3 tasks remaining</h2>
+      <h2 id="list-heading">{headingText}</h2>
       <ul
         role="list"
         className="todo-list stack-large stack-exception"
